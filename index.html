@@ -559,6 +559,27 @@
                 transform: translateY(60px);
             }
             .toast.show { transform: translateY(0); }
+
+            /* Painel direito: vira barra de botão no rodapé */
+            .start-right {
+                display: flex;
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border);
+                padding: 10px 12px;
+                flex-direction: row;
+                justify-content: center;
+                flex-shrink: 0;
+                overflow: visible;
+            }
+            .start-right .right-sep { display: none; }
+            .start-right .right-btn {
+                width: 100%;
+                max-width: 320px;
+                text-align: center;
+                padding: 10px 16px;
+                font-size: 13px;
+            }
         }
 
         /* ══════════════════════════════════
