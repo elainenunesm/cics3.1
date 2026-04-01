@@ -458,6 +458,117 @@
             box-shadow: 0 4px 16px rgba(0,0,0,.5);
         }
         .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* ══════════════════════════════════
+           RESPONSIVO — Tablet (≤ 900px)
+        ══════════════════════════════════ */
+        @media (max-width: 900px) {
+            .start-right { display: none; }
+        }
+
+        /* ══════════════════════════════════
+           RESPONSIVO — Mobile (≤ 640px)
+        ══════════════════════════════════ */
+        @media (max-width: 640px) {
+            body {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+
+            .app-body {
+                flex-direction: column;
+                overflow: visible;
+            }
+
+            /* Sidebar vira barra horizontal */
+            .start-sidebar {
+                width: 100%;
+                flex-direction: row;
+                align-items: stretch;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                flex-shrink: 0;
+            }
+
+            .start-logo {
+                padding: 8px 12px;
+                border-bottom: none;
+                border-right: 1px solid var(--border);
+                flex-shrink: 0;
+                gap: 6px;
+            }
+
+            .start-logo-icon { font-size: 20px; }
+
+            .start-logo-title { font-size: 12px; }
+
+            .start-logo-sub { display: none; }
+
+            .start-nav-list {
+                flex-direction: row;
+                padding: 0;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .start-nav-list::-webkit-scrollbar { display: none; }
+
+            .start-nav-btn {
+                padding: 10px 14px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                white-space: nowrap;
+                font-size: 12px;
+                flex-shrink: 0;
+            }
+            .start-nav-btn.active {
+                background: var(--sel-bg);
+                border-left-color: transparent;
+                border-bottom-color: var(--accent);
+            }
+
+            /* Centro */
+            .start-center {
+                padding: 14px 12px;
+                overflow: visible;
+                flex: unset;
+                gap: 12px;
+            }
+
+            .start-recent-list {
+                flex: unset;
+                max-height: 280px;
+            }
+
+            /* Cards de configuração */
+            .config-card { padding: 12px 14px; }
+
+            /* Modal tela cheia no mobile */
+            .npmod-box {
+                width: calc(100% - 24px);
+                margin: 0 12px;
+            }
+
+            /* Toast mais largo */
+            .toast {
+                width: calc(100% - 32px);
+                text-align: center;
+                left: 16px;
+                right: 16px;
+                transform: translateY(60px);
+            }
+            .toast.show { transform: translateY(0); }
+        }
+
+        /* ══════════════════════════════════
+           RESPONSIVO — Pequeno (≤ 400px)
+        ══════════════════════════════════ */
+        @media (max-width: 400px) {
+            .app-titlebar { font-size: 11px; padding: 0 10px; }
+            .start-nav-btn { font-size: 11px; padding: 10px 10px; }
+            .action-btn { font-size: 13px; padding: 12px 16px; }
+        }
     </style>
 </head>
 <body>
@@ -477,9 +588,6 @@
         </div>
         <div class="start-nav-list">
             <button class="start-nav-btn active" onclick="showSection('start', this)">Início</button>
-            <button class="start-nav-btn" onclick="showSection('config', this)">Configuração</button>
-            <button class="start-nav-btn" onclick="showSection('profile', this)">Perfil de Usuário</button>
-            <button class="start-nav-btn" onclick="checkUpdate(this)">Verificar Update</button>
         </div>
     </div>
 
@@ -500,44 +608,6 @@
             </div>
         </div>
 
-        <!-- Seção: Configuração -->
-        <div id="section-config" class="center-section">
-            <div class="recent-header">Configurações Gerais</div>
-            <div class="config-card">
-                <div class="config-card-title">🎨 Tema da Interface</div>
-                <div class="config-card-desc">O tema é herdado do editor. Alterne em <strong>View Code → Tema</strong> dentro do editor.</div>
-            </div>
-            <div class="config-card">
-                <div class="config-card-title">📁 Diretório Padrão</div>
-                <div class="form-row" style="margin-top:6px;">
-                    <div class="form-label">Caminho padrão de projetos</div>
-                    <input class="form-input" type="text" id="defaultDir" placeholder="Ex: C:\CICS\Projetos" oninput="saveConfig()">
-                </div>
-            </div>
-            <div class="config-card">
-                <div class="config-card-title">💡 Sobre</div>
-                <div class="config-card-desc">Versão 3.1.0 &nbsp;|&nbsp; Editor CICS COBOL 3270 &nbsp;|&nbsp; © Elaine Nunes™</div>
-            </div>
-        </div>
-
-        <!-- Seção: Perfil -->
-        <div id="section-profile" class="center-section">
-            <div class="recent-header">Perfil de Usuário</div>
-            <div class="config-card" style="gap:10px;">
-                <div class="form-row">
-                    <div class="form-label">Nome</div>
-                    <input class="form-input" type="text" id="profileName" placeholder="Seu nome" oninput="saveProfile()">
-                </div>
-                <div class="form-row">
-                    <div class="form-label">Empresa / Organização</div>
-                    <input class="form-input" type="text" id="profileOrg" placeholder="Ex: Banco XPTO" oninput="saveProfile()">
-                </div>
-                <div class="form-row">
-                    <div class="form-label">E-mail</div>
-                    <input class="form-input" type="email" id="profileEmail" placeholder="seu@email.com" oninput="saveProfile()">
-                </div>
-            </div>
-        </div>
 
     </div>
 
