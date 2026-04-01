@@ -1049,52 +1049,57 @@
             };
         })();
 
-        /* ── Pull-to-refresh (mobile): puxa para baixo → salva projeto ── */
+        /* ── Pull-to-refresh (mobile): puxa para baixo na ribbon → salva projeto ── */
         (function() {
-            var THRESHOLD = 70;
+            var THRESHOLD = 65;
             var startY = 0;
+            var curDist = 0;
             var pulling = false;
             var ind = document.createElement('div');
             ind.className = 'ptr-indicator';
             ind.innerHTML = '<span class="ptr-arrow">↓</span><span class="ptr-spinner"></span><span class="ptr-text">Puxe para salvar</span>';
             document.body.prepend(ind);
 
-            function getText(ready, loading) {
-                return loading ? 'Salvando…' : ready ? 'Solte para salvar' : 'Puxe para salvar';
-            }
+            /* Escuta na ribbon (topo fixo), que sempre recebe o toque inicial no editor */
+            var ribbon = document.querySelector('.ide-ribbon') || document.body;
 
-            document.addEventListener('touchstart', function(e) {
-                if (window.scrollY === 0 && e.touches.length === 1) {
+            ribbon.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 1) {
                     startY = e.touches[0].clientY;
+                    curDist = 0;
                     pulling = true;
                 }
             }, { passive: true });
 
+            /* touchmove precisa estar no document para capturar após sair da ribbon */
             document.addEventListener('touchmove', function(e) {
                 if (!pulling) return;
-                var dist = e.touches[0].clientY - startY;
-                if (dist <= 0) { pulling = false; return; }
-                var ready = dist >= THRESHOLD;
+                curDist = e.touches[0].clientY - startY;
+                if (curDist <= 0) {
+                    ind.classList.remove('ptr-visible', 'ptr-ready');
+                    return;
+                }
+                var ready = curDist >= THRESHOLD;
                 ind.classList.add('ptr-visible');
                 ind.classList.toggle('ptr-ready', ready);
-                ind.querySelector('.ptr-text').textContent = getText(ready, false);
+                ind.querySelector('.ptr-text').textContent =
+                    ready ? 'Solte para salvar' : 'Puxe para salvar';
             }, { passive: true });
 
-            document.addEventListener('touchend', function(e) {
+            document.addEventListener('touchend', function() {
                 if (!pulling) return;
                 pulling = false;
-                if (!ind.classList.contains('ptr-ready')) {
+                if (curDist < THRESHOLD) {
                     ind.classList.remove('ptr-visible', 'ptr-ready');
                     return;
                 }
                 ind.classList.add('ptr-loading');
-                ind.querySelector('.ptr-text').textContent = getText(false, true);
-                /* Salva o projeto e fecha o indicador */
+                ind.querySelector('.ptr-text').textContent = 'Salvando\u2026';
                 Promise.resolve(typeof saveProject === 'function' ? saveProject() : null)
                     .finally(function() {
                         setTimeout(function() {
                             ind.classList.remove('ptr-visible', 'ptr-ready', 'ptr-loading');
-                        }, 800);
+                        }, 900);
                     });
             }, { passive: true });
         })();
