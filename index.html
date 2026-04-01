@@ -970,6 +970,66 @@
     function escHtml(s) {
         return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
+
+    /* ── Pull-to-refresh (mobile): puxa para baixo → recarrega a página ── */
+    (function() {
+        var THRESHOLD = 70;
+        var startY = 0;
+        var pulling = false;
+
+        /* Cria o indicador visual inline (index não usa styles.css) */
+        var style = document.createElement('style');
+        style.textContent = [
+            '.ptr-indicator{position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;',
+            'justify-content:center;gap:8px;background:#1e1e1e;color:#cccccc;font-size:12px;',
+            'font-family:"Segoe UI",system-ui,sans-serif;border-bottom:1px solid #3f3f46;',
+            'overflow:hidden;height:0;transition:height .2s ease;pointer-events:none;user-select:none;}',
+            '.ptr-indicator.ptr-visible{height:44px;}',
+            '.ptr-indicator.ptr-ready{color:#007acc;border-bottom-color:#007acc;}',
+            '.ptr-spinner{width:18px;height:18px;border:2px solid #555;border-top-color:#007acc;',
+            'border-radius:50%;animation:ptr-spin .6s linear infinite;display:none;}',
+            '.ptr-indicator.ptr-loading .ptr-spinner{display:block;}',
+            '.ptr-indicator.ptr-loading .ptr-arrow{display:none;}',
+            '@keyframes ptr-spin{to{transform:rotate(360deg)}}',
+            '.ptr-arrow{font-size:16px;transition:transform .2s ease;}',
+            '.ptr-indicator.ptr-ready .ptr-arrow{transform:rotate(180deg);}'
+        ].join('');
+        document.head.appendChild(style);
+
+        var ind = document.createElement('div');
+        ind.className = 'ptr-indicator';
+        ind.innerHTML = '<span class="ptr-arrow">↓</span><span class="ptr-spinner"></span><span class="ptr-text">Puxe para atualizar</span>';
+        document.body.prepend(ind);
+
+        document.addEventListener('touchstart', function(e) {
+            if (window.scrollY === 0 && e.touches.length === 1) {
+                startY = e.touches[0].clientY;
+                pulling = true;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!pulling) return;
+            var dist = e.touches[0].clientY - startY;
+            if (dist <= 0) { pulling = false; return; }
+            var ready = dist >= THRESHOLD;
+            ind.classList.add('ptr-visible');
+            ind.classList.toggle('ptr-ready', ready);
+            ind.querySelector('.ptr-text').textContent = ready ? 'Solte para atualizar' : 'Puxe para atualizar';
+        }, { passive: true });
+
+        document.addEventListener('touchend', function() {
+            if (!pulling) return;
+            pulling = false;
+            if (!ind.classList.contains('ptr-ready')) {
+                ind.classList.remove('ptr-visible', 'ptr-ready');
+                return;
+            }
+            ind.classList.add('ptr-loading');
+            ind.querySelector('.ptr-text').textContent = 'Atualizando…';
+            setTimeout(function() { window.location.reload(); }, 300);
+        }, { passive: true });
+    })();
 </script>
 </body>
 </html>
