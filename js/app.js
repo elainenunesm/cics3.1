@@ -1018,7 +1018,7 @@
             
             container.innerHTML = app.screens.map((screen, index) => `
                 <div class="screen-item ${index === app.currentScreenIndex ? 'active' : ''}" 
-                     onclick="loadScreen(${index})">
+                     onclick="if(event.target.closest('.screen-action-btn'))return; loadScreen(${index})">
                     <span class="screen-item-name">${screen.name}</span>
                     ${screen.fields.length > 0 ? 
                         `<span class="screen-item-badge">${screen.fields.length} campos</span>` : ''}
@@ -1059,6 +1059,7 @@
             _highlightPanelField(-1);
             if (!document.getElementById('validationPanel').classList.contains('collapsed')) {
                 renderFieldsList();
+                renderFieldConfig();
             }
             
             if (app.fields.length > 0) {
@@ -2448,14 +2449,15 @@
             if (index < 0 || index >= app.fields.length) return;
             var field = app.fields[index];
             if (!field) return;
+            var terminal = document.getElementById('terminal');
             for (var i = 0; i < field.length; i++) {
-                var cell = document.querySelector(
+                var cell = terminal.querySelector(
                     '[data-row="' + field.row + '"][data-col="' + (field.col + i) + '"]'
                 );
                 if (cell) cell.classList.add('field-panel-highlight');
             }
             // Scroll suave para o campo na tela
-            var first = document.querySelector('[data-row="' + field.row + '"][data-col="' + field.col + '"]');
+            var first = terminal.querySelector('[data-row="' + field.row + '"][data-col="' + field.col + '"]');
             if (first) first.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
