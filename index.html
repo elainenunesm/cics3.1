@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        button, [role="button"], a { touch-action: manipulation; }
 
         :root {
             --bg:          #2d2d30;
@@ -419,6 +420,8 @@
             padding: 0 10px;
             cursor: pointer;
             white-space: nowrap;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .npmod-browse:hover { background: var(--btn-h); }
         .npmod-footer {

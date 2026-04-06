@@ -3135,7 +3135,6 @@
             var cp = document.querySelector('.ide-code-panel');
             if (sb) sb.classList.add('mobile-open');
             if (cp) cp.classList.remove('mobile-open');
-            /* NÃO mostra mobileOverlay: o tour já tem seu próprio overlay escuro */
         }
         function _tourOpenCode() {
             var sb = document.querySelector('.ide-sidebar');
@@ -3151,136 +3150,248 @@
             if (cp) cp.classList.remove('mobile-open');
             if (ov) ov.classList.remove('show');
         }
+        function _tourSwitchSection(name) {
+            document.querySelectorAll('.sidebar-section-panel').forEach(function(el) { el.classList.remove('active'); });
+            document.querySelectorAll('.sidebar-panel-tab').forEach(function(btn) { btn.classList.remove('active'); });
+            var panel = document.getElementById('section-' + name);
+            if (panel) panel.classList.add('active');
+            var label = name === 'projeto' ? 'Projeto' : name === 'atividade' ? 'Atividade' : "PF\u0027S";
+            document.querySelectorAll('.sidebar-panel-tab').forEach(function(t) {
+                if (t.textContent.trim() === label) t.classList.add('active');
+            });
+        }
+        function _tourCloseAllModals() {
+            // Modais que usam classList.add('show')
+            ['fileModalOverlay','newScreenModalOverlay','exportModalOverlay',
+             'importModalOverlay','validationExportModalOverlay','helpModalOverlay',
+             'bmsOptionsModalOverlay','mappingModalOverlay'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.classList.remove('show');
+            });
+            // Painéis que usam style.display
+            ['navPanelOverlay','camposPanelOverlay','configPanelOverlay'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        }
 
         var _tourSteps = [
+            /* ── 1. Ribbon geral ── */
             {
                 sel: '.ide-titlebar-actions',
                 pos: 'bottom',
-                setup: function() { _tourCloseDrawers(); },
+                setup: function() { _tourCloseAllModals(); _tourCloseDrawers(); },
                 title: '🛠 Barra de Ferramentas',
-                text: 'Aqui ficam os botões principais: <b>Carregar</b> importa telas TXT/BMS; <b>Exportar</b> gera COBOL, BMS, Copybook ou JSON; <b>Tour</b> reinicia este guia; <b>Ajuda</b> abre o manual completo.'
+                text: 'A ribbon reúne todos os controles do editor. Cada grupo tem um rótulo abaixo: <b>Telas</b>, <b>Exportar / Importar</b>, <b>Painéis</b> e <b>Visual</b>. Os próximos passos mostrarão cada botão por dentro.'
             },
+            /* ── 2. Carregar ── */
             {
-                sel: '.sidebar-tabs',
-                pos: 'right',
+                sel: '#dropZone',
+                pos: 'bottom',
                 setup: function() {
-                    switchSidebarTab('telas');
-                    if (window.innerWidth <= 767) _tourOpenSidebar();
-                },
-                title: '🗂 Abas do Painel Lateral',
-                text: 'Quatro abas organizam o simulador: <b>🖥 Telas</b> (gerenciar telas carregadas), <b>🔀 Nav.</b> (regras de navegação por PF key), <b>🔤 Campos</b> (atributos BMS e validações) e <b>⚙ Config</b> (tema e exportações rápidas).'
-            },
-            {
-                sel: '.sidebar-file-row',
-                pos: 'right',
-                setup: function() {
-                    switchSidebarTab('telas');
-                    if (window.innerWidth <= 767) _tourOpenSidebar();
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    openFileModal();
                 },
                 title: '📂 Carregar Telas',
-                text: 'Clique em <b>Carregar</b> para importar arquivos <b>.txt</b> (layout 3270 com <code>x</code> para numérico e <code>z</code> para alfanumérico) ou <b>.bms</b>. Você pode carregar várias telas de uma vez.'
+                text: 'Este é o painel de carregamento. Clique na área ou arraste arquivos <b>.txt</b> (layout 3270 com <code>x</code>=numérico e <code>z</code>=alfanumérico) ou <b>.bms</b>. Múltiplos arquivos de uma vez são suportados.'
             },
+            /* ── 3. Nova Tela ── */
+            {
+                sel: '#newScreenNameInput',
+                pos: 'bottom',
+                setup: function() {
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    openNewScreenModal();
+                },
+                title: '➕ Criar Nova Tela',
+                text: 'Digite aqui o nome da nova tela (até <b>8 caracteres</b>: letras e números). Exemplos: <code>MENU</code>, <code>CAD01</code>. Após confirmar, o editor de layout abre automaticamente para você compor o conteúdo da tela.'
+            },
+            /* ── 4. Demo ── */
+            {
+                sel: 'button[onclick="loadExampleScreen()"]',
+                pos: 'bottom',
+                setup: function() { _tourCloseAllModals(); _tourCloseDrawers(); },
+                title: '▶️ Tela Demo',
+                text: 'Carrega uma tela de demonstração pronta, com campos numéricos e alfanuméricos, para você explorar os recursos do editor sem precisar de um arquivo real. Ótimo ponto de partida!'
+            },
+            /* ── 5. Limpar ── */
+            {
+                sel: 'button[onclick="clearAllScreens()"]',
+                pos: 'bottom',
+                setup: function() { _tourCloseAllModals(); _tourCloseDrawers(); },
+                title: '🗑️ Limpar Telas',
+                text: 'Remove <b>todas</b> as telas carregadas e reinicia o projeto. Uma confirmação é exibida antes de apagar. Use com cuidado — esta ação não pode ser desfeita.'
+            },
+            /* ── 6. Salvar ── */
+            {
+                sel: 'button[onclick="saveProject()"]',
+                pos: 'bottom',
+                setup: function() { _tourCloseAllModals(); _tourCloseDrawers(); },
+                title: '💾 Salvar Projeto',
+                text: 'Grava o projeto atual no arquivo <b>.cics</b> da pasta selecionada. O indicador de status (•) na barra de título fica vermelho quando há alterações não salvas. Salve sempre antes de sair!'
+            },
+            /* ── 7. Exportar ── */
+            {
+                sel: '#exportModalOverlay .export-options',
+                pos: 'bottom',
+                setup: function() {
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    var el = document.getElementById('exportModalOverlay');
+                    if (el) el.classList.add('show');
+                },
+                title: '📤 Exportar Regras de Navegação',
+                text: 'Escolha o formato para exportar as regras de navegação: <b>JSON</b> para reimportar, <b>COBOL</b> com o EVALUATE/WHEN completo, <b>CSV</b> ou <b>Excel</b> para documentação da equipe.'
+            },
+            /* ── 8. Importar ── */
+            {
+                sel: '#importDropZone',
+                pos: 'bottom',
+                setup: function() {
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    var el = document.getElementById('importModalOverlay');
+                    if (el) el.classList.add('show');
+                },
+                title: '📥 Importar Regras de Navegação',
+                text: 'Arraste ou clique para carregar um arquivo de regras exportado anteriormente (<b>JSON</b>, <b>CSV</b> ou <b>Excel</b>). O sistema associa automaticamente as regras às telas pelo nome — telas não encontradas podem ser mapeadas manualmente.'
+            },
+            /* ── 9. Exp. Val. ── */
+            {
+                sel: '#validationExportModalOverlay .export-options',
+                pos: 'bottom',
+                setup: function() {
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    var el = document.getElementById('validationExportModalOverlay');
+                    if (el) el.classList.add('show');
+                },
+                title: '📦 Exportar Validações e BMS',
+                text: 'Exporte as configurações dos campos: <b>JSON</b> completo, <b>COBOL</b> com toda a lógica de validação, <b>Excel/CSV</b> para documentação, <b>BMS</b> (macros DFHMDF prontas) ou <b>Copybook</b> COBOL com definições de campos.'
+            },
+            /* ── 10. Config. ── */
+            {
+                sel: '#configPanelOverlay .modal-body',
+                pos: 'left',
+                setup: function() {
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    var el = document.getElementById('configPanelOverlay');
+                    if (el) el.style.display = 'flex';
+                },
+                title: '⚙️ Configurações',
+                text: 'Painel de configurações com três opções: <b>🌓 Alternar Tema</b> (claro/escuro, salvo no navegador); <b>📦 BMS / COBOL / Copybook</b> (exportação rápida de código); <b>🗺 Regras de Navegação</b> (exportar JSON).'
+            },
+            /* ── 11. Sidebar — lista de telas ── */
             {
                 sel: '.screens-container',
                 pos: 'right',
                 setup: function() {
-                    switchSidebarTab('telas');
+                    _tourCloseAllModals();
+                    _tourSwitchSection('projeto');
                     if (window.innerWidth <= 767) _tourOpenSidebar();
                 },
                 title: '📋 Lista de Telas',
-                text: 'Cada tela carregada aparece aqui. Clique para visualizar, use os botões para renomear (✏) ou excluir (🗑). A tela ativa fica destacada em azul.'
+                text: 'Cada tela carregada aparece aqui no painel lateral. Clique em uma tela para visualizá-la no terminal. Use <b>🗑️</b> para excluir. A tela ativa fica destacada em azul.'
             },
-            {
-                sel: '.sidebar-action-btn.new-screen',
-                pos: 'right',
-                setup: function() {
-                    switchSidebarTab('telas');
-                    if (window.innerWidth <= 767) _tourOpenSidebar();
-                },
-                title: '➕ Criar Nova Tela',
-                text: 'Clique em <b>+ Nova</b> para criar uma tela em branco. Informe um nome de até 8 caracteres e confirme — o editor de layout abrirá automaticamente para você digitar o conteúdo da nova tela.'
-            },
+            /* ── 12. Editar layout ── */
             {
                 sel: '#btnEditScreen',
                 pos: 'bottom',
-                setup: function() { if (window.innerWidth <= 767) _tourCloseDrawers(); },
+                setup: function() { _tourCloseAllModals(); if (window.innerWidth <= 767) _tourCloseDrawers(); },
                 title: '✏️ Editar Layout da Tela',
-                text: 'Clique em <b>✏️ Editar</b> para abrir o editor de texto da tela ativa. Digite o layout com <b>24 linhas × 80 colunas</b>: use <code>x</code> para campos numéricos e <code>z</code> para alfanuméricos. O BMS é atualizado em tempo real enquanto você digita. Ao fechar, COBOL e BMS são regenerados.'
+                text: 'Abre o editor de texto da tela ativa — uma área de <b>24 linhas × 80 colunas</b>. Digite o layout livremente usando <code>x</code> para campos numéricos e <code>z</code> para alfanuméricos. Ao clicar em <b>✅ Fechar Edição</b>, COBOL e BMS são regenerados.'
             },
+            /* ── 13. Terminal ── */
             {
                 sel: '.terminal-screen',
                 pos: 'top',
-                setup: function() { if (window.innerWidth <= 767) _tourCloseDrawers(); },
+                setup: function() { _tourCloseAllModals(); if (window.innerWidth <= 767) _tourCloseDrawers(); },
                 title: '🖥 Terminal IBM 3270',
-                text: 'Emulação exata do terminal 3270 — <b>24 linhas × 80 colunas</b>. Campos editáveis aparecem em <b>verde claro</b>. Clique num campo para selecioná-lo e configurar seus atributos na aba Campos.'
+                text: 'Emulação exata do terminal 3270 — <b>24 linhas × 80 colunas</b>. Campos editáveis aparecem em <b>verde claro</b>. Clique em qualquer campo para selecioná-lo. No mobile, use a barra de controles abaixo para navegar entre campos.'
             },
+            /* ── 14. PF'S ── */
             {
-                sel: '.function-keys',
-                pos: 'top',
-                setup: function() { if (window.innerWidth <= 767) _tourCloseDrawers(); },
-                title: '⌨️ Teclas de Função',
-                text: 'As teclas PF são detectadas automaticamente do arquivo TXT. Teclas com <b>borda verde</b> têm regras de navegação configuradas. Clique em qualquer tecla para simulá-la.'
-            },
-            {
-                /* destaca o botão de aba Nav — elemento pequeno e sempre visível */
-                sel: '[data-tab="nav"]',
-                pos: 'bottom',
+                sel: '.sidebar-pf-grid',
+                pos: 'right',
                 setup: function() {
-                    switchSidebarTab('nav');
+                    _tourCloseAllModals();
+                    _tourSwitchSection('custom');
                     if (window.innerWidth <= 767) _tourOpenSidebar();
+                },
+                title: '⌨️ Teclas de Função',
+                text: 'Na aba <b>PF\'S</b> ficam as teclas PF1–PF12, ↑ PREV, ↓ NEXT e ENTER. Teclas com <b>borda verde</b> têm regras de navegação configuradas. Clique em qualquer tecla para simulá-la no terminal.'
+            },
+            /* ── 15. Navegação — dentro do painel ── */
+            {
+                sel: '#navPanelOverlay .modal',
+                pos: 'right',
+                setup: function() {
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    var el = document.getElementById('navPanelOverlay');
+                    if (el) el.style.display = 'flex';
                 },
                 title: '🔀 Regras de Navegação',
-                text: 'Ative a aba <b>🔀 Nav.</b> para definir o que acontece ao pressionar cada PF key: navegar para outra tela, exibir mensagem, limpar campos, etc. Clique em <b>+ Adicionar Regra</b> para criar. O código COBOL é gerado automaticamente.'
+                text: 'Este painel lista todas as regras de navegação da tela ativa. Cada regra define: <b>Tela de origem</b>, <b>Tecla PF</b> e <b>Ação</b> (navegar para outra tela, exibir mensagem, etc.). Clique em <b>Adicionar Regra</b> para criar uma nova. O COBOL é gerado automaticamente.'
             },
+            /* ── 16. Campos — dentro do painel ── */
             {
-                /* destaca o botão de aba Campos — elemento pequeno e sempre visível */
-                sel: '[data-tab="campos"]',
-                pos: 'bottom',
+                sel: '#camposPanelOverlay .modal',
+                pos: 'right',
                 setup: function() {
-                    switchSidebarTab('campos');
-                    if (window.innerWidth <= 767) _tourOpenSidebar();
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    var el = document.getElementById('camposPanelOverlay');
+                    if (el) el.style.display = 'flex';
                 },
-                title: '🔤 Atributos BMS e Validações',
-                text: 'Ative a aba <b>🔤 Campos</b> e clique em um campo no terminal para configurar: <b>nome BMS</b> (ex: NOMEI), <b>proteção</b> (UNPROT/PROT/ASKIP), <b>intensidade</b> (BRT/DRK) e validações como tamanho mínimo, CPF, data, etc.'
+                title: '🔤 Campos e Validações',
+                text: 'Este painel tem dois lados: à esquerda a <b>lista de campos</b> da tela (clique para selecionar) e à direita a <b>configuração</b> do campo: nome BMS, tipo, validações (obrigatório, tamanho mínimo, CPF, data, etc.). As teclas que disparam a validação são configuradas no topo (ENTER, PF1–PF12).'
             },
+            /* ── 17. Código CICS ── */
             {
                 sel: '#tabCics',
                 pos: 'left',
                 setup: function() {
+                    _tourCloseAllModals();
                     switchCodeTab('cics');
                     if (window.innerWidth <= 767) _tourOpenCode();
                 },
                 title: '📑 Aba CICS/COBOL',
-                text: 'A aba <b>CICS/COBOL</b> exibe o código completo do programa CICS com todas as regras de navegação (EVALUATE/WHEN), validações de campo e tratamento de mensagem — gerado automaticamente em tempo real.'
+                text: 'A aba <b>CICS/COBOL</b> exibe o código completo do programa CICS — EVALUATE/WHEN para cada PF key, validações de campo, tratamento de mensagens e chamadas EXEC CICS — tudo gerado <b>em tempo real</b> conforme você edita.'
             },
+            /* ── 18. BMS MAP ── */
             {
                 sel: '#tabBms',
                 pos: 'left',
                 setup: function() {
+                    _tourCloseAllModals();
                     switchCodeTab('bms');
                     if (window.innerWidth <= 767) _tourOpenCode();
                 },
                 title: '🗺 Aba BMS MAP',
-                text: 'A aba <b>BMS MAP</b> exibe o source BMS com as macros <code>DFHMSD</code>, <code>DFHMDI</code> e <code>DFHMDF</code> para cada campo da tela — nomes únicos de até 8 caracteres, <code>POS</code>, <code>LENGTH</code> e <code>ATTRB</code> prontos para o assembler HLASM.'
+                text: 'A aba <b>BMS MAP</b> exibe o source BMS com macros <code>DFHMSD</code>, <code>DFHMDI</code> e <code>DFHMDF</code> — nomes de até 8 caracteres, <code>POS</code>, <code>LENGTH</code> e <code>ATTRB</code>. Pronto para compilar com o assembler HLASM do z/OS.'
             },
+            /* ── 19. Tour ── */
             {
-                sel: '.config-card-btn',
-                pos: 'right',
-                setup: function() {
-                    switchSidebarTab('config');
-                    if (window.innerWidth <= 767) _tourOpenSidebar();
-                },
-                title: '🌓 Alternar Tema',
-                text: 'Na aba <b>⚙ Config</b>, clique em <b>Alternar Tema</b> para mudar entre o <b>modo escuro</b> e o <b>modo claro</b>. A preferência é salva no navegador — cada pessoa pode usar o tema que preferir sem afetar outros usuários.'
+                sel: 'button[onclick="startTour()"]',
+                pos: 'bottom',
+                setup: function() { _tourCloseAllModals(); _tourCloseDrawers(); },
+                title: '🎯 Tour Interativo',
+                text: 'Este botão reinicia o tour a qualquer momento. Use sempre que quiser rever uma funcionalidade ou apresentar o editor para alguém. O tour fecha automaticamente ao clicar em <b>✅ Concluir</b> ou <b>✕ Sair</b>.'
             },
+            /* ── 20. Ajuda ── */
             {
-                sel: '.ide-code-panel',
+                sel: '#helpModalOverlay .modal',
                 pos: 'left',
                 setup: function() {
-                    if (window.innerWidth <= 767) _tourOpenCode();
+                    _tourCloseAllModals(); _tourCloseDrawers();
+                    if (typeof showHelp === 'function') showHelp();
                 },
-                title: '📄 Painel de Código Gerado',
-                text: 'Exibe o código COBOL/BMS gerado automaticamente. Você pode <b>redimensionar</b> este painel arrastando a borda esquerda. As divisões COBOL são destacadas visualmente como em uma IDE.'
+                title: '❓ Manual de Ajuda',
+                text: 'O painel de ajuda contém o manual completo do editor: formato do arquivo TXT, atalhos de teclado, como criar regras de navegação, como configurar validações, exemplos de código BMS/COBOL e solução de problemas comuns.'
+            },
+            /* ── 21. Tema ── */
+            {
+                sel: 'button[onclick="toggleTheme()"]',
+                pos: 'bottom',
+                setup: function() { _tourCloseAllModals(); _tourCloseDrawers(); },
+                title: '🌓 Alternar Tema',
+                text: 'Muda entre <b>modo escuro</b> e <b>modo claro</b>. A preferência é salva no navegador — cada pessoa pode usar o tema que preferir. O modo claro facilita a leitura em ambientes bem iluminados.'
             }
         ];
 
@@ -3400,7 +3511,8 @@
         function endTour() {
             if (_tourSpot) _tourSpot.style.display = 'none';
             if (_tourTip)  _tourTip.style.display  = 'none';
-            /* fechar drawers mobile que o tour possa ter aberto */
+            /* fechar drawers mobile e modais que o tour possa ter aberto */
+            _tourCloseAllModals();
             _tourCloseDrawers();
         }
 
