@@ -3546,14 +3546,14 @@
                 text: 'Clique na aba <b>BMS MAP</b> para ver o source BMS completo com as macros <code>DFHMSD</code>, <code>DFHMDI</code> e <code>DFHMDF</code> — gerado automaticamente a partir do seu arquivo TXT, pronto para o assembler HLASM.'
             },
             {
-                sel: 'button[onclick="openExportModal()"]',
+                sel: 'button[onclick="openValidationExportModal()"]',
                 pos: 'bottom',
                 setup: function() {
                     _tourCloseAllModals();
                     if (window.innerWidth <= 767) _tourCloseDrawers();
                 },
                 title: '4️⃣ Exportar o BMS',
-                text: 'Clique em <b>Exportar</b> para baixar o BMS MAP gerado. Escolha o formato — JSON, COBOL, SQL ou <b>BMS direto</b>. O arquivo fica pronto para usar no seu projeto z/OS!'
+                text: 'Clique em <b>Exp. Val.</b> para baixar o BMS MAP gerado. Escolha o formato — JSON, COBOL, SQL ou <b>BMS direto</b>. O arquivo fica pronto para usar no seu projeto z/OS!'
             }
         ];
 
@@ -3600,8 +3600,19 @@
                     '#sampleTxtBox .stb-btn-copy:active{background:#1a8ad4;}' +
                     '#sampleTxtBox .stb-btn-next{background:#3c3c3c;color:#ccc;border:1px solid #555;}' +
                     '#sampleTxtBox .stb-btn-next:active{background:#505050;}' +
-                    '#sampleTxtBox .stb-subtitle{padding:8px 14px 6px;background:#1e3a4a;border-bottom:1px solid #1f5f78;font-size:12px;color:#7dd3f0;display:flex;align-items:center;gap:6px;flex-shrink:0;}' +
-                    '@media(min-width:480px){#sampleTxtBox .stb-btn{flex:none;}}';  
+                    '#sampleTxtBox .stb-subtitle{padding:8px 14px 6px;background:#1e3a4a;border-bottom:1px solid #1f5f78;font-size:12px;color:#7dd3f0;display:flex;align-items:center;gap:6px;flex-shrink:0;line-height:1.4;}' +
+                    '@media(min-width:480px){#sampleTxtBox .stb-btn{flex:none;}}' +
+                    '@media(max-width:479px){' +
+                        '#sampleTxtOverlay{padding:0 !important;align-items:flex-end;}' +
+                        '#sampleTxtBox{width:100% !important;max-height:92dvh;border-radius:12px 12px 0 0;border-left:none;border-right:none;border-bottom:none;}' +
+                        '#sampleTxtBox .stb-header{font-size:11px;padding:8px 10px;}' +
+                        '#sampleTxtBox .stb-subtitle{font-size:10px;padding:5px 10px;line-height:1.35;}' +
+                        '#sampleTxtBox .stb-legend{padding:5px 10px;gap:6px;font-size:10px;}' +
+                        '#sampleTxtBox .stb-legend code{font-size:10px;}' +
+                        '#sampleTxtBox .stb-pre{font-size:9.5px;padding:8px 10px;line-height:1.45;}' +
+                        '#sampleTxtBox .stb-footer{padding:8px 10px;}' +
+                        '#sampleTxtBox .stb-btn{font-size:12px;padding:10px 12px;flex:1;}' +
+                    '}';  
                 document.head.appendChild(s);
             }
 
