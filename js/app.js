@@ -3516,6 +3516,250 @@
             _tourCloseDrawers();
         }
 
+        // ════════════════════════════════════════════
+        //  TOUR BÁSICO  (Carregar → Terminal → BMS → Exportar)
+        // ════════════════════════════════════════════
+        var _basicTourSteps = [
+            {
+                sel: 'button[onclick="openFileModal()"]',
+                pos: 'bottom',
+                setup: function() { _tourCloseAllModals(); _tourCloseDrawers(); },
+                title: '1️⃣ Carregar arquivo TXT',
+                text: 'Toque em <b>Carregar</b> para abrir o seletor de arquivos.<br>Selecione um arquivo <code>.txt</code> ou <code>.bms</code> com o layout da sua tela CICS 3270. Você pode carregar vários de uma vez!'
+            },
+            {
+                sel: '#terminal',
+                pos: 'top',
+                setup: function() { _tourCloseAllModals(); _tourCloseDrawers(); },
+                title: '2️⃣ Visualizar no Terminal',
+                text: 'Após carregar, a tela aparece aqui no <b>Terminal CICS 3270</b>, exatamente como seria no mainframe — 24 linhas × 80 colunas. Clique nas telas da barra lateral para alternar entre elas.'
+            },
+            {
+                sel: '#tabBms',
+                pos: 'left',
+                setup: function() {
+                    _tourCloseAllModals();
+                    switchCodeTab('bms');
+                    if (window.innerWidth <= 767) _tourOpenCode();
+                },
+                title: '3️⃣ Ver o BMS gerado',
+                text: 'Clique na aba <b>BMS MAP</b> para ver o source BMS completo com as macros <code>DFHMSD</code>, <code>DFHMDI</code> e <code>DFHMDF</code> — gerado automaticamente a partir do seu arquivo TXT, pronto para o assembler HLASM.'
+            },
+            {
+                sel: 'button[onclick="openExportModal()"]',
+                pos: 'bottom',
+                setup: function() {
+                    _tourCloseAllModals();
+                    if (window.innerWidth <= 767) _tourCloseDrawers();
+                },
+                title: '4️⃣ Exportar o BMS',
+                text: 'Clique em <b>Exportar</b> para baixar o BMS MAP gerado. Escolha o formato — JSON, COBOL, SQL ou <b>BMS direto</b>. O arquivo fica pronto para usar no seu projeto z/OS!'
+            }
+        ];
+
+        // ════════════════════════════════════════════
+        //  MODAL TELA DE EXEMPLO  (mostrar antes do tour básico)
+        // ════════════════════════════════════════════
+        function showSampleTxtModal() {
+            var SAMPLE =
+'                                                                                ' + '\n' +
+'MENU01   SISTEMA DE CADASTRO DE CLIENTES          DATA: 99/99/9999' + '\n' +
+'--------------------------------------------------------------------------------' + '\n' +
+' NOME.........: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                ' + '\n' +
+' CPF/CNPJ.....: xxxxxxxxxxxxxxx                                                 ' + '\n' +
+' TELEFONE.....: xxxxxxxxxxx                                                     ' + '\n' +
+' E-MAIL.......: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                       ' + '\n' +
+' ENDERECO.....: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                               ' + '\n' +
+' CIDADE.......: xxxxxxxxxxxxxxxxxx    ESTADO: xx    CEP: xxxxxxxx               ' + '\n' +
+'                                                                                ' + '\n' +
+'--------------------------------------------------------------------------------' + '\n' +
+' MENSAGEM.: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx               ' + '\n' +
+'                                                                                ' + '\n' +
+' PF3=RETORNAR    PF5=CONFIRMAR    PF7=ANTERIOR    PF8=PROXIMO                  ';
+
+            /* cria estilos do modal de exemplo */
+            if (!document.getElementById('sampleTxtStyle')) {
+                var s = document.createElement('style');
+                s.id = 'sampleTxtStyle';
+                s.textContent =
+                    '#sampleTxtOverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:5100;display:flex;align-items:center;justify-content:center;padding:12px;}' +
+                    '#sampleTxtBox{background:#1e1e1e;border:1px solid #3f3f46;width:min(720px,100%);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.7);border-radius:4px;overflow:hidden;}' +
+                    '#sampleTxtBox .stb-header{background:#3c3c3c;padding:10px 14px;font-size:13px;font-weight:700;color:#fff;border-bottom:1px solid #555;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px;}' +
+                    '#sampleTxtBox .stb-header-left{display:flex;align-items:center;gap:8px;}' +
+                    '#sampleTxtBox .stb-legend{padding:8px 14px;background:#252526;border-bottom:1px solid #3f3f46;font-size:11px;color:#aaa;display:flex;gap:16px;flex-wrap:wrap;flex-shrink:0;}' +
+                    '#sampleTxtBox .stb-legend span{display:flex;align-items:center;gap:5px;}' +
+                    '#sampleTxtBox .stb-legend code{background:#3c3c3c;padding:1px 5px;border-radius:2px;font-family:"IBM Plex Mono",monospace;font-size:11px;}' +
+                    '#sampleTxtBox .stb-pre{flex:1;overflow:auto;margin:0;padding:12px 16px;font-family:"IBM Plex Mono","Courier New",monospace;font-size:12px;line-height:1.55;color:#d4d4d4;background:#1e1e1e;white-space:pre;tab-size:1;}' +
+                    '#sampleTxtBox .stb-pre .stb-field{color:#4ec9b0;}' +
+                    '#sampleTxtBox .stb-pre .stb-label{color:#cccccc;}' +
+                    '#sampleTxtBox .stb-pre .stb-sep{color:#555;}' +
+                    '#sampleTxtBox .stb-pre .stb-pf{color:#c586c0;}' +
+                    '#sampleTxtBox .stb-footer{background:#252526;padding:10px 14px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid #3f3f46;flex-wrap:wrap;flex-shrink:0;}' +
+                    '#sampleTxtBox .stb-btn{font-family:inherit;font-size:13px;padding:9px 20px;border:none;cursor:pointer;border-radius:3px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex:1;min-width:120px;text-align:center;}' +
+                    '#sampleTxtBox .stb-btn-copy{background:#007acc;color:#fff;}' +
+                    '#sampleTxtBox .stb-btn-copy:active{background:#1a8ad4;}' +
+                    '#sampleTxtBox .stb-btn-next{background:#3c3c3c;color:#ccc;border:1px solid #555;}' +
+                    '#sampleTxtBox .stb-btn-next:active{background:#505050;}' +
+                    '#sampleTxtBox .stb-subtitle{padding:8px 14px 6px;background:#1e3a4a;border-bottom:1px solid #1f5f78;font-size:12px;color:#7dd3f0;display:flex;align-items:center;gap:6px;flex-shrink:0;}' +
+                    '@media(min-width:480px){#sampleTxtBox .stb-btn{flex:none;}}';  
+                document.head.appendChild(s);
+            }
+
+            /* coloriza o conteúdo */
+            function colorize(txt) {
+                return txt.split('\n').map(function(line) {
+                    if (/^[-=─]+$/.test(line.trim()) || line.trim() === '') {
+                        return '<span class="stb-sep">' + _esc(line) + '</span>';
+                    }
+                    if (/PF\d+=/.test(line)) {
+                        return '<span class="stb-pf">' + _esc(line) + '</span>';
+                    }
+                    /* destaca os campos (sequências de x) em ciano */
+                    return _esc(line).replace(/(x+)/g, '<span class="stb-field">$1</span>');
+                }).join('\n');
+            }
+            function _esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+            var overlay = document.createElement('div');
+            overlay.id = 'sampleTxtOverlay';
+            overlay.innerHTML =
+                '<div id="sampleTxtBox">' +
+                    '<div class="stb-header">' +
+                        '<div class="stb-header-left">📄 Exemplo de arquivo TXT — tela CICS 3270</div>' +
+                    '</div>' +
+                    '<div class="stb-subtitle">📋 Copie o conteúdo abaixo, salve como arquivo <strong>.TXT</strong> e carregue no editor para gerar o BMS</div>' +
+                    '<div class="stb-legend">' +
+                        '<span><code style="color:#4ec9b0;">xxx</code> = campo editável (alfanumérico)</span>' +
+                        '<span><code style="color:#c586c0;">PF3=...</code> = tecla de função</span>' +
+                        '<span><code>---</code> = separador / texto estático</span>' +
+                    '</div>' +
+                    '<pre class="stb-pre" id="sampleTxtPre">' + colorize(SAMPLE) + '</pre>' +
+                    '<div class="stb-footer">' +
+                        '<button class="stb-btn stb-btn-next" id="stbSkip">Pular → iniciar tour</button>' +
+                        '<button class="stb-btn stb-btn-copy" id="stbCopy">📋 Copiar exemplo</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(overlay);
+
+            function closeSample() {
+                overlay.remove();
+                setTimeout(startBasicTour, 150);
+            }
+
+            document.getElementById('stbCopy').addEventListener('click', function() {
+                var btn = this;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(SAMPLE).then(function() {
+                        btn.textContent = '✅ Copiado!';
+                        setTimeout(function() { btn.innerHTML = '📋 Copiar exemplo'; }, 2000);
+                    });
+                } else {
+                    /* fallback legado */
+                    var ta = document.createElement('textarea');
+                    ta.value = SAMPLE;
+                    ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    ta.remove();
+                    btn.textContent = '✅ Copiado!';
+                    setTimeout(function() { btn.innerHTML = '📋 Copiar exemplo'; }, 2000);
+                }
+            });
+
+            document.getElementById('stbSkip').addEventListener('click', closeSample);
+        }
+
+        function startBasicTour() {
+            /* encerra tour completo se estiver ativo */
+            if (_tourSpot) _tourSpot.style.display = 'none';
+            if (_tourTip)  _tourTip.style.display  = 'none';
+
+            if (!_tourSpot) {
+                _tourSpot = document.createElement('div');
+                _tourSpot.className = 'tour-spotlight';
+                document.body.appendChild(_tourSpot);
+            }
+            if (!_tourTip) {
+                _tourTip = document.createElement('div');
+                _tourTip.className = 'tour-tooltip';
+                document.body.appendChild(_tourTip);
+            }
+
+            /* substitui temporariamente os passos */
+            var _saved = _tourSteps;
+            _tourSteps = _basicTourSteps;
+            _tourSpot.style.display = 'block';
+            _tourTip.style.display  = 'block';
+            _tourIdx = 0;
+            _tourShow(0);
+
+            /* restaura os passos originais quando o tour encerrar */
+            var _origEnd = endTour;
+            endTour = function() {
+                _origEnd();
+                _tourSteps = _saved;
+                endTour = _origEnd;
+            };
+        }
+
+        // ════════════════════════════════════════════
+        //  MODAL DE BOAS-VINDAS  (aparece sempre ao carregar)
+        // ════════════════════════════════════════════
+        (function initWelcomeTour() {
+
+            /* cria os estilos — responsivo mobile incluso */
+            var style = document.createElement('style');
+            style.textContent =
+                '#welcomeTourOverlay{position:fixed;inset:0;background:rgba(0,0,0,.70);z-index:5000;display:flex;align-items:center;justify-content:center;padding:12px;}' +
+                '#welcomeTourBox{background:#2d2d30;border:1px solid #3f3f46;width:min(460px,100%);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.7);border-radius:4px;overflow:hidden;}' +
+                '#welcomeTourBox .wtb-header{background:#3c3c3c;padding:12px 16px;font-size:14px;font-weight:700;color:#fff;border-bottom:1px solid #3f3f46;display:flex;align-items:center;gap:8px;flex-shrink:0;}' +
+                '#welcomeTourBox .wtb-body{padding:18px 16px;font-size:13px;color:#cccccc;line-height:1.6;overflow-y:auto;flex:1;}' +
+                '#welcomeTourBox .wtb-body b{color:#fff;}' +
+                '#welcomeTourBox .wtb-steps{margin:14px 0 0;display:flex;flex-direction:column;gap:8px;}' +
+                '#welcomeTourBox .wtb-step{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#ccc;}' +
+                '#welcomeTourBox .wtb-step-num{background:#007acc;color:#fff;border-radius:50%;width:22px;height:22px;min-width:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}' +
+                '#welcomeTourBox .wtb-footer{background:#252526;padding:12px 16px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid #3f3f46;flex-wrap:wrap;flex-shrink:0;}' +
+                '#welcomeTourBox .wtb-btn{font-family:inherit;font-size:13px;padding:10px 22px;border:none;cursor:pointer;border-radius:3px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;flex:1;min-width:120px;text-align:center;}' +
+                '#welcomeTourBox .wtb-btn-yes{background:#007acc;color:#fff;}' +
+                '#welcomeTourBox .wtb-btn-yes:active{background:#1a8ad4;}' +
+                '#welcomeTourBox .wtb-btn-no{background:#3c3c3c;color:#ccc;border:1px solid #555;}' +
+                '#welcomeTourBox .wtb-btn-no:active{background:#505050;}' +
+                '@media(min-width:480px){#welcomeTourBox .wtb-btn{flex:none;}}';
+            document.head.appendChild(style);
+
+            var overlay = document.createElement('div');
+            overlay.id = 'welcomeTourOverlay';
+            overlay.innerHTML =
+                '<div id="welcomeTourBox">' +
+                    '<div class="wtb-header">🖥️ CICS COBOL Editor — Bem-vindo!</div>' +
+                    '<div class="wtb-body">' +
+                        'Quer ver um <b>tour rápido</b> de como usar o editor?' +
+                        '<div class="wtb-steps">' +
+                            '<div class="wtb-step"><div class="wtb-step-num">1</div><span>Carregar um arquivo <b>TXT / BMS</b> com sua tela</span></div>' +
+                            '<div class="wtb-step"><div class="wtb-step-num">2</div><span>Visualizar a tela no <b>Terminal 3270</b></span></div>' +
+                            '<div class="wtb-step"><div class="wtb-step-num">3</div><span>Ver o <b>BMS MAP</b> gerado automaticamente</span></div>' +
+                            '<div class="wtb-step"><div class="wtb-step-num">4</div><span><b>Exportar</b> o BMS pronto para o z/OS</span></div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="wtb-footer">' +
+                        '<button class="wtb-btn wtb-btn-no"  id="wtbNo">Não, obrigado</button>' +
+                        '<button class="wtb-btn wtb-btn-yes" id="wtbYes">▶ Sim, mostrar tour!</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(overlay);
+
+            function closeWelcome() {
+                overlay.remove();
+            }
+
+            document.getElementById('wtbYes').addEventListener('click', function() {
+                closeWelcome();
+                setTimeout(showSampleTxtModal, 200);
+            });
+            document.getElementById('wtbNo').addEventListener('click', closeWelcome);
+        }());
+
         function toggleTheme() {
             const body = document.body;
             const isLight = body.classList.toggle('light-theme');
