@@ -3424,8 +3424,9 @@
             if (!step) { endTour(); return; }
             if (step.setup) {
                 step.setup();
-                /* aguarda repintura do DOM (tab switch + drawer animation) */
-                setTimeout(function() { _tourPosition(idx); }, 60);
+                /* no mobile o code-panel tem transition .28s; espera terminar */
+                var delay = window.innerWidth <= 767 ? 320 : 60;
+                setTimeout(function() { _tourPosition(idx); }, delay);
             } else {
                 _tourPosition(idx);
             }
@@ -3600,7 +3601,7 @@
                     '#sampleTxtBox .stb-btn-copy:active{background:#1a8ad4;}' +
                     '#sampleTxtBox .stb-btn-next{background:#3c3c3c;color:#ccc;border:1px solid #555;}' +
                     '#sampleTxtBox .stb-btn-next:active{background:#505050;}' +
-                    '#sampleTxtBox .stb-subtitle{padding:8px 14px 6px;background:#1e3a4a;border-bottom:1px solid #1f5f78;font-size:12px;color:#7dd3f0;display:flex;align-items:center;gap:6px;flex-shrink:0;line-height:1.4;}' +
+                    '#sampleTxtBox .stb-subtitle{padding:8px 14px 6px;background:#1e3a4a;border-bottom:1px solid #1f5f78;font-size:12px;color:#7dd3f0;display:block;flex-shrink:0;line-height:1.5;}' +
                     '@media(min-width:480px){#sampleTxtBox .stb-btn{flex:none;}}' +
                     '@media(max-width:479px){' +
                         '#sampleTxtOverlay{padding:0 !important;align-items:flex-end;}' +
