@@ -191,6 +191,16 @@
         <!-- ─── CENTER: TERMINAL ─── -->
         <div class="ide-terminal-panel">
 
+            <!-- barra de controles mobile: Tab / Limpar -->
+            <div class="mobile-field-bar mobile-only">
+                <span class="mobile-field-label" id="mobileFieldLabel">Toque num campo</span>
+                <div style="display:flex;gap:5px;margin-left:auto;">
+                    <button class="mobile-field-btn" onclick="mobilePrevField()" title="Campo anterior">⇤ Ant</button>
+                    <button class="mobile-field-btn" onclick="mobileNextField()" title="Próximo campo">Tab ⇥</button>
+                    <button class="mobile-field-btn" onclick="mobileClearField()" title="Limpar campo">⌫ Limpar</button>
+                </div>
+            </div>
+
             <div class="ide-panel-header">
                 <span class="ide-panel-icon">⚙</span>
                 <span class="ide-panel-label">Terminal CICS 3270</span>
