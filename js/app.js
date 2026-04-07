@@ -3602,9 +3602,12 @@
                     '#sampleTxtBox .stb-btn-next{background:#3c3c3c;color:#ccc;border:1px solid #555;}' +
                     '#sampleTxtBox .stb-btn-next:active{background:#505050;}' +
                     '#sampleTxtBox .stb-subtitle{padding:8px 14px 6px;background:#1e3a4a;border-bottom:1px solid #1f5f78;font-size:12px;color:#7dd3f0;display:block;flex-shrink:0;line-height:1.5;}' +
+                    '#sampleTxtBox .stb-sub-short{display:none;}' +
                     '@media(min-width:480px){#sampleTxtBox .stb-btn{flex:none;}}' +
                     '@media(max-width:479px){' +
                         '#sampleTxtOverlay{padding:0 !important;align-items:flex-end;}' +
+                        '#sampleTxtBox .stb-sub-full{display:none;}' +
+                        '#sampleTxtBox .stb-sub-short{display:inline;}' +
                         '#sampleTxtBox{width:100% !important;max-height:92dvh;border-radius:12px 12px 0 0;border-left:none;border-right:none;border-bottom:none;}' +
                         '#sampleTxtBox .stb-header{font-size:11px;padding:8px 10px;}' +
                         '#sampleTxtBox .stb-subtitle{font-size:10px;padding:5px 10px;line-height:1.35;}' +
@@ -3639,7 +3642,10 @@
                     '<div class="stb-header">' +
                         '<div class="stb-header-left">📄 Exemplo de arquivo TXT — tela CICS 3270</div>' +
                     '</div>' +
-                    '<div class="stb-subtitle">📋 Copie o conteúdo abaixo, salve como arquivo <strong>.TXT</strong> e carregue no editor para gerar o BMS</div>' +
+                    '<div class="stb-subtitle">' +
+                        '<span class="stb-sub-full">📋 Copie o conteúdo abaixo, salve como arquivo <strong>.TXT</strong> e carregue no editor para gerar o BMS</span>' +
+                        '<span class="stb-sub-short">📋 Copie, salve como <strong>.TXT</strong> e carregue no editor</span>' +
+                    '</div>' +
                     '<div class="stb-legend">' +
                         '<span><code style="color:#4ec9b0;">xxx</code> = campo editável (alfanumérico)</span>' +
                         '<span><code style="color:#c586c0;">PF3=...</code> = tecla de função</span>' +
